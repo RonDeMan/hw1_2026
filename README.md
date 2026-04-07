@@ -199,7 +199,7 @@ For inspiration on styled UI components (buttons, cards, loaders), check out [ui
 npm install --save-dev eslint
 ```
 
-2. **Place `.eslintrc.json`** in your project root (same level as `package.json`).
+2. **Place `eslint.config.js` (older version: `eslintrc.json`) ** in your project root (same level as `package.json`).
 
 3. **Run ESLint**:
 ```bash
