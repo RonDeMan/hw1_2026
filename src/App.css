@@ -204,12 +204,13 @@
 }
 
 .note {
-  background: #f0f4ff;
-  border: 1px solid #c3d4f8;
+  background: var(--note-bg);
+  border: 1px solid var(--note-border);
   border-radius: 10px;
   padding: 16px;
-  box-shadow: 0 2px 8px rgba(30, 60, 120, 0.1);
+  box-shadow: var(--note-shadow);
   text-align: left;
+  color: var(--note-text);
 }
 
 .note h2 {
@@ -217,7 +218,11 @@
 }
 
 .note small {
-  color: #44527f;
+  color: var(--note-muted);
+}
+
+.note p {
+  color: var(--note-text);
 }
 
 .pagination {
@@ -229,32 +234,39 @@
 }
 
 .pagination button {
-  border: 1px solid #7b90cf;
-  background: #e8eefb;
+  border: 1px solid var(--pagination-border);
+  background: var(--pagination-bg);
   padding: 8px 14px;
   border-radius: 8px;
   cursor: pointer;
   min-width: 60px;
   font-weight: 500;
+  color: var(--text-h);
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
 .pagination button:hover:not(:disabled) {
-  background: #cdd7f7;
+  background: var(--pagination-bg-hover);
 }
 
 .pagination button:disabled {
-  background: #d9dfef;
+  background: var(--pagination-bg-disabled);
   cursor: not-allowed;
   opacity: 0.7;
 }
 
 .pagination .active-page {
   font-weight: 900;
-  color: #1e3a8a;
-  border-color: #1e3a8a;
+  color: var(--pagination-active-text);
+  border-color: var(--pagination-active-border);
   border-width: 3px;
-  background: #dbeafe;
-  box-shadow: 0 4px 8px rgba(30, 58, 138, 0.4);
+  background: var(--pagination-active-bg);
+  box-shadow: var(--pagination-shadow);
   transform: scale(1.08);
 }
 
