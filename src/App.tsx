@@ -3,6 +3,8 @@ import './App.css'
 import Note from './components/Note'
 import type { NoteData } from './components/Note'
 import Pagination from './components/Pagination'
+import axios from 'axios'
+
 
 const API_URL = 'http://localhost:3001/notes'
 const PAGE_SIZE = 10
@@ -20,12 +22,12 @@ function App() {
 
     try {
       const pageUrl = `${API_URL}?_page=${page}&_per_page=${PAGE_SIZE}`
-      const response = await fetch(pageUrl)
-      if (!response.ok) {
+      const response = await axios.get(pageUrl)
+      if (!response.data) {
         throw new Error(`Failed to fetch: ${response.status}`)
       }
 
-      const payload = await response.json()
+      const payload = response.data
       const rawNotes = Array.isArray(payload)
         ? payload
         : Array.isArray(payload?.notes)
@@ -38,7 +40,7 @@ function App() {
         throw new Error('Unexpected notes response format')
       }
 
-      let totalCountValue = Number(response.headers.get('X-Total-Count'))
+      let totalCountValue = Number(response.headers['x-total-count'])
       if (!totalCountValue && typeof payload === 'object' && 'items' in payload) {
         totalCountValue = payload.items
       }
@@ -50,7 +52,7 @@ function App() {
       setNotes(rawNotes)
 
       // Only update totalPages if we have a reliable count from header or items
-      if (response.headers.get('X-Total-Count') || (typeof payload === 'object' && 'items' in payload)) {
+      if (response.headers['x-total-count'] || (typeof payload === 'object' && 'items' in payload)) {
         setTotalPages(calculatedTotal)
       }
 
@@ -93,7 +95,7 @@ function App() {
         {!loading && !error && notes.length === 0 && <p>No notes found.</p>}
 
         {notes.map((note) => (
-          <Note key={note.id} note={note} />
+          <Note key={note._id} note={note} />
         ))}
       </section>
 

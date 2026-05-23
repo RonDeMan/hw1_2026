@@ -34,7 +34,6 @@ function getPageNumbers(currentPage: number, totalPages: number) {
 
 function Pagination({ currentPage, totalPages, onChange }: PaginationProps) {
   const pageNumbers = getPageNumbers(currentPage, totalPages)
-
   return (
     <div className="pagination" role="navigation" aria-label="Pagination">
       <button
