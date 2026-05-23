@@ -1,20 +1,26 @@
-import { useCallback, useEffect, useState, useRef } from 'react'
+import { useCallback, useEffect, useState, useReducer } from 'react'
 import './App.css'
 import Note from './components/Note'
-import type { NoteData } from './components/Note'
+import type { NewNoteData, NoteData } from './components/Note'
 import Pagination from './components/Pagination'
 import axios from 'axios'
-
+import { notes_context , initialNotes, addNoteRequest, deleteNoteRequest, updateNoteRequest} from './contexts/notes_context'
+import { notesReducer } from './reducer_functions/notes_reducer'
+import NewNote from './components/NewNote'
 
 const API_URL = 'http://localhost:3001/notes'
 const PAGE_SIZE = 10
 
 function App() {
-  const [notes, setNotes] = useState<NoteData[]>([])
+  // const [notes, setNotes] = useState<NoteData[]>([])
+  const [notes, dispatchNotes] = useReducer(notesReducer, initialNotes)
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isAddingNote, setIsAddingNote] = useState(false)
+  const [notification, setNotification] = useState('Notification area')
+
 
   const loadPage = useCallback(async (page: number) => {
     setLoading(true)
@@ -49,7 +55,9 @@ function App() {
       }
       const calculatedTotal = Math.max(1, Math.ceil(totalCountValue / PAGE_SIZE))
 
-      setNotes(rawNotes)
+      // setNotes(rawNotes)
+      dispatchNotes({ type: 'SET_NOTES', payload: rawNotes })
+
 
       // Only update totalPages if we have a reliable count from header or items
       if (response.headers['x-total-count'] || (typeof payload === 'object' && 'items' in payload)) {
@@ -82,13 +90,39 @@ function App() {
     setCurrentPage(page)
   }
 
+  const deleteNote = async (noteId: string) => {
+    await deleteNoteRequest(noteId)
+    dispatchNotes({ type: 'REMOVE_NOTE', payload: noteId })
+    setNotification(`Deleted note ${noteId}`)
+  }
+
+  const updateNote = async (note: NoteData) => {
+    await updateNoteRequest(note)
+    dispatchNotes({ type: 'UPDATE_NOTE', payload: note })
+    setNotification(`Updated note ${note._id}`)
+  }
+
+  const addNote = async (note: NewNoteData) => {
+    const createdNote = await addNoteRequest(note)
+    dispatchNotes({ type: 'ADD_NOTE', payload: createdNote })
+    setNotification(`Added note ${createdNote._id || 'new note'}`)
+    return createdNote
+  }
+
   return (
+    <notes_context.Provider value={{ notes, dispatchNotes, deleteNote, updateNote, addNote }}>
     <main className="app-container">
       <header>
         <h1>Notes with Pagination</h1>
         <p>Server data is loaded per page from JSON Server (10 notes per page).</p>
       </header>
-
+      <div className="notification-area" aria-live="polite">
+        <h3>{notification}</h3>
+      </div>
+      <button onClick={() => setIsAddingNote(true)}>Add New Note</button>
+      {isAddingNote && (
+        <NewNote setIsAddingNote={setIsAddingNote} />
+      )}
       <section className="list-area">
         {loading && <p>Loading notes…</p>}
         {error && <p className="error">{error}</p>}
@@ -107,6 +141,7 @@ function App() {
         </small>
       </footer>
     </main>
+     </notes_context.Provider>
   )
 }
 
