@@ -8,7 +8,7 @@ import {
   getNotes,
   updateNoteById,
   updateNoteByIndex,
-} from '../controllers/notesController.ts'
+} from '../controllers/notesController'
 
 const notesRouter = Router()
 

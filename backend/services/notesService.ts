@@ -1,4 +1,4 @@
-import * as model from '../models/notes_model.ts'
+import * as model from '../models/notes_model'
 
 export const getNote = (id: string) => {
   return model.getNote(id)

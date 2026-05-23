@@ -5,7 +5,7 @@
   "scripts": {
     "start": "tsx server.ts",
     "dev": "tsx watch server.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --runInBand"
   },
   "author": "me",
   "license": "ISC",
@@ -14,11 +14,14 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "jest": "^30.4.2",
     "mongodb": "^7.2.0",
     "mongoose": "^9.6.2"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
+    "@types/jest": "^30.0.0",
+    "ts-jest": "^29.4.11",
     "tsx": "^4.22.3"
   }
 }

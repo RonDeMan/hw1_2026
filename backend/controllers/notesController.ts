@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import * as notesService from '../services/notesService.ts'
+import * as notesService from '../services/notesService'
 
 export const getNotes = async (request: Request, response: Response) => {
   const queryParams = request.query

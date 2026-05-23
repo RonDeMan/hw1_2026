@@ -1,6 +1,6 @@
-import app from './expressApp.ts'
-import { connectToDatabase } from './config/mongo.ts'
-import { PORT } from './consts.ts'
+import app from './expressApp'
+import { connectToDatabase } from './config/mongo'
+import { PORT } from './consts'
 
 const start = async () => {
   await connectToDatabase()

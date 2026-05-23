@@ -1,7 +1,7 @@
 import cors from 'cors'
 import express from 'express'
-import { requestLogger } from './middlewares/requestLogger.ts'
-import notesRouter from './routes/notesRoutes.ts'
+import { requestLogger } from './middlewares/requestLogger'
+import notesRouter from './routes/notesRoutes'
 
 const app = express()
 
