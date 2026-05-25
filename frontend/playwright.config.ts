@@ -11,7 +11,7 @@ export default defineConfig({
     trace: 'on-first-retry',
   },
   projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'], channel: 'msedge' } },
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
   ],
   webServer: [
     {
