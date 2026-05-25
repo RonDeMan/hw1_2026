@@ -19,7 +19,6 @@ function NewNote({setIsAddingNote}: {setIsAddingNote: (isAddingNote: boolean) =>
       content,
         author: { name: 'Unknown', email: 'unknown@example.com' }
     })
-    notesContext.dispatchNotes({ type: 'ADD_NOTE', payload: createdNote })
     setIsAddingNote(false)
   }
 

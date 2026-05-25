@@ -37,7 +37,7 @@ const noteSchema = new mongoose.Schema<NoteType>({
 const Note = mongoose.model('Note', noteSchema)
 
 export const getNotes = async ({ skip, limit }: { skip: number; limit: number }) => {
-  const notes = await Note.find({}).skip(skip).limit(limit)
+  const notes = await Note.find({}).skip(skip).limit(limit).sort({ _id: -1 })
   const totalCount = await Note.countDocuments({})
   return [notes, totalCount]
 }

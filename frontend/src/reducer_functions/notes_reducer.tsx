@@ -11,7 +11,7 @@ export function notesReducer(state: NoteData[], action: NotesAction) {
     case 'SET_NOTES':
       return action.payload
     case 'ADD_NOTE':
-      return [...state, action.payload]
+      return [action.payload, ...state].slice(0, 10)
     case 'REMOVE_NOTE':
       return state.filter((note) => note._id !== action.payload)
     case 'UPDATE_NOTE':
