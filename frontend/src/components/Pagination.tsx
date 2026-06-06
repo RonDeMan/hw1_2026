@@ -4,7 +4,7 @@ interface PaginationProps {
   onChange: (page: number) => void
 }
 
-function getPageNumbers(currentPage: number, totalPages: number) {
+export function getPageNumbers(currentPage: number, totalPages: number) {
   if (totalPages <= 5) {
     return Array.from({ length: totalPages }, (_, i) => i + 1)
   }

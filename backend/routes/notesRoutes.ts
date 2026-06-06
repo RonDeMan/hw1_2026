@@ -9,9 +9,11 @@ import {
   updateNoteById,
   updateNoteByIndex,
 } from '../controllers/notesController'
+import { filterNotes } from '../controllers/notesFilterController'
 
 const notesRouter = Router()
 
+notesRouter.get('/filter', filterNotes)
 notesRouter.get('/', getNotes)
 notesRouter.get('/:id', getNoteById)
 notesRouter.delete('/:id', deleteNoteById)

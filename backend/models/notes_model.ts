@@ -9,6 +9,14 @@ export type NoteType = {
   title: string
   author: Author | null
   content: string
+  user?: mongoose.Types.ObjectId
+}
+
+export type userType = {
+  name: string,
+  email: string,
+  username: string,
+  passwordHash: string
 }
 
 const noteSchema = new mongoose.Schema<NoteType>({
@@ -33,6 +41,10 @@ const noteSchema = new mongoose.Schema<NoteType>({
     type: String,
     required: true,
   },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }
 })
 const Note = mongoose.model('Note', noteSchema)
 
@@ -86,4 +98,10 @@ export const deleteithNote = async (index: number) => {
     }
     const note = notes[index]
     return await Note.findByIdAndDelete(note._id)
+}
+
+export const filterNotes = async (query: string) => {
+  // substring match, chronological order (which implies _id: 1)
+  const notes = await Note.find({ content: { $regex: query, $options: 'i' } }).sort({ _id: 1 }).limit(10)
+  return notes
 }

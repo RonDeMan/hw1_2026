@@ -2,6 +2,7 @@ import cors from 'cors'
 import express from 'express'
 import { requestLogger } from './middlewares/requestLogger'
 import notesRouter from './routes/notesRoutes'
+import aiRouter from './routes/aiRoutes'
 
 const app = express()
 
@@ -14,5 +15,6 @@ app.get('/', (request, response) => {
 })
 
 app.use('/notes', notesRouter)
+app.use('/ai', aiRouter)
 
 export default app

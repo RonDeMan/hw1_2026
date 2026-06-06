@@ -34,3 +34,7 @@ export const deleteithNote = (index: number) => {
 export const updateNote = (id: string, noteData: model.NoteType) => {
   return model.updateNote(id, noteData)
 }
+
+export const filterNotes = (query: string) => {
+  return model.filterNotes(query)
+}
