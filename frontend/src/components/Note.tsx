@@ -1,5 +1,6 @@
 import { useContext, useState } from 'react'
 import { notes_context } from '../contexts/notes_context'
+import { AuthContext } from '../contexts/AuthContext'
 
 export interface NoteData {
   _id: string 
@@ -16,6 +17,7 @@ interface NoteProps {
 
 function Note({ note }: NoteProps) {
   const notesContext = useContext(notes_context)
+  const authContext = useContext(AuthContext)
   const [isEditing, setIsEditing] = useState(false)
 
   if (!notesContext) {
@@ -46,6 +48,8 @@ function Note({ note }: NoteProps) {
     handleChangeEditStatus()
   }
 
+  const isAuthor = authContext?.user?.email && note.author?.email && authContext.user.email === note.author.email
+
   return (
     <div className="note" data-testid={`${note._id}`}>
       <h2>{note.title}</h2>
@@ -54,14 +58,18 @@ function Note({ note }: NoteProps) {
       )}
       <br />
       <p>{note.content}</p>
-      <button data-testid={`delete-${note._id}`} onClick={handleDelete}>Delete</button>
-      {!isEditing ? (
-        <button data-testid={`edit-${note._id}`} onClick={handleChangeEditStatus}>Edit</button>
-      ) : <div>
-        <textarea data-testid={`text_input-${note._id}`}>{note.content}</textarea>
-        <button data-testid={`text_input_save-${note._id}`} onClick={handleSave}>Save</button>
-        <button data-testid={`text_input_cancel-${note._id}`} onClick={handleChangeEditStatus}>Cancel</button>
-      </div>}
+      {isAuthor && (
+        <>
+          <button data-testid={`delete-${note._id}`} onClick={handleDelete}>Delete</button>
+          {!isEditing ? (
+            <button data-testid={`edit-${note._id}`} onClick={handleChangeEditStatus}>Edit</button>
+          ) : <div>
+            <textarea data-testid={`text_input-${note._id}`}>{note.content}</textarea>
+            <button data-testid={`text_input_save-${note._id}`} onClick={handleSave}>Save</button>
+            <button data-testid={`text_input_cancel-${note._id}`} onClick={handleChangeEditStatus}>Cancel</button>
+          </div>}
+        </>
+      )}
     </div>
   )
 }

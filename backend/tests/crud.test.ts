@@ -71,6 +71,7 @@ describe('notes CRUD controllers', () => {
 				content: 'Test content',
 				author: null,
 			},
+            user: { _id: 'mock_id', name: 'Mock User', email: 'mock@example.com' }
 		} as unknown as Request
 		const response = createMockResponse()
 		const createdNote = { id: '1', ...request.body }
@@ -88,6 +89,7 @@ describe('notes CRUD controllers', () => {
 			body: {
 				title: 'Missing content',
 			},
+            user: { _id: 'mock_id', name: 'Mock User', email: 'mock@example.com' }
 		} as unknown as Request
 		const response = createMockResponse()
 
@@ -135,6 +137,7 @@ describe('notes CRUD controllers', () => {
 				content: 'Updated content',
 				author: null,
 			},
+            user: { _id: 'mock_id', name: 'Mock User', email: 'mock@example.com' }
 		} as unknown as Request
 		const response = createMockResponse()
 		const updatedNote = { id: '123', ...request.body }
@@ -150,6 +153,7 @@ describe('notes CRUD controllers', () => {
 	test('returns 204 after deleting a note by id', async () => {
 		const request = {
 			params: { id: '123' },
+            user: { _id: 'mock_id', name: 'Mock User', email: 'mock@example.com' }
 		} as unknown as Request
 		const response = createMockResponse()
 
@@ -201,6 +205,7 @@ describe('notes CRUD controllers', () => {
 				content: 'Edited content',
 				author: null,
 			},
+            user: { _id: 'mock_id', name: 'Mock User', email: 'mock@example.com' }
 		} as unknown as Request
 		const response = createMockResponse()
 		const updatedNote = { id: '1', ...request.body }
@@ -216,6 +221,7 @@ describe('notes CRUD controllers', () => {
 	test('returns 204 after deleting a note by index', async () => {
 		const request = {
 			params: { i: '0' },
+            user: { _id: 'mock_id', name: 'Mock User', email: 'mock@example.com' }
 		} as unknown as Request
 		const response = createMockResponse()
 

@@ -1,15 +1,17 @@
 #!/bin/bash
-# Kill ports if busy
-if [ -z "$1" ]; then
-  echo "Usage: $0 <git_repo_url> <path_to_env_file>" 
+
+if [ -z "$1" ] || [ -z "$2" ]; then
+  echo "Usage: $0 <git_repo_url> <path_to_.env_file>"
   exit 1
 fi
 
 REPO_URL="$1"
-TIMESTAMP=$(date +"%m_%d_%y__%H_%M_%S")
-TMP_DIR="./presubmission_tests/$TIMESTAMP"
-echo "Using temp dir: $TMP_DIR"
-mkdir -p "$TMP_DIR"
+ENV_FILE="$2"
+TMP_DIR="tmp_submission_check"
+TEST_DIR="playwright-tests"
+
+rm -rf "$TMP_DIR"
+mkdir "$TMP_DIR"
 cd "$TMP_DIR" || exit 1
 
 git clone "$REPO_URL" repo
@@ -19,96 +21,77 @@ if [ $? -ne 0 ]; then
 fi
 
 cd repo || exit 1
-git checkout submission_hw2
+git checkout submission_hw3 2>/dev/null || echo "Branch 'submission_hw3' not found. Using default branch."
+
+# Copy .env to root
 cp "$2" ./backend/.env || { echo "Failed to copy .env file"; exit 1; }
 
-# Define the expected structure
-expected_paths=(
-  "./frontend"
-  "./frontend/playwright-tests/test.spec.ts"
-  "./frontend/playwright.config.ts"
-  "./frontend/package.json"
-  "./frontend/src/components"
-  "./frontend/src/contexts"
-  "./backend"
-  "./backend/config"
-  "./backend/controllers"
-  "./backend/services"
-  "./backend/routes"
-  "./backend/middlewares"
-  "./backend/models"
-  "./backend/tests/crud.test.ts"
-  "./backend/package.json"
-)
+# Install dependencies
+cd backend || { echo "Missing backend directory"; exit 1; }
+npm install || { echo "Backend npm install failed"; exit 1; }
+cd ..
 
-echo "Checking folder structure..."
-all_exist=true
-
-for path in "${expected_paths[@]}"; do
-  if [ ! -e "$path" ]; then
-    echo "Missing: $path"
-    all_exist=false
-  else
-    echo "Found: $path"
-  fi
-done
-
-if [ "$all_exist" = false ]; then
-  echo "Some files or folders are missing."
-  exit 1
-fi
-
-# Install frontend dependencies
-cd frontend || exit 1
-npm install || { echo "frontend: npm install failed"; exit 1; }
+cd frontend || { echo "Missing frontend directory"; exit 1; }
+npm install || { echo "Frontend npm install failed"; exit 1; }
 npx playwright install || { echo "Playwright install failed"; exit 1; }
+cd ..
 
-# Install backend dependencies
-cd ../backend || exit 1
-npm install || { echo "backend: npm install failed"; exit 1; }
-
+# Kill processes on common ports
 PORTS=(3000 3001)
 for PORT in "${PORTS[@]}"; do
-  echo "Checking port $PORT..."
-  PIDS=$(lsof -ti tcp:$PORT)
-  if [ -n "$PIDS" ]; then
-    echo "Found processes on port $PORT: $PIDS"
-    for PID in $PIDS; do
-      echo "Killing process $PID on port $PORT"
-      kill -9 "$PID" || echo "Failed to kill process $PID"
-    done
-  else
-    echo "No process found on port $PORT"
+  PID=$(lsof -ti tcp:$PORT)
+  if [ -n "$PID" ]; then
+    echo "Killing process $PID on port $PORT"
+    kill -9 "$PID"
   fi
 done
 
-
-
-# Run backend tests
-cd ../backend || exit 1
-echo "Running backend tests..."
-npm run test || echo "Backend tests failed."
-
 # Start backend
+cd backend
 npm run dev > ../backend.log 2>&1 &
 BACK_PID=$!
-echo "Started backend (PID $BACK_PID)"
-sleep 1
+cd ..
+sleep 2
 
 # Start frontend
-cd ../frontend || exit 1
+cd frontend
 npm run dev > ../frontend.log 2>&1 &
 FRONT_PID=$!
-echo "Started frontend (PID $FRONT_PID)"
-sleep 1
+sleep 2
 
-# Run frontend tests
-cd ../frontend || exit 1
-echo "Running frontend (Playwright) tests..."
-npm run test || echo "Frontend tests failed."
+# Playwright tests
+mkdir "$TEST_DIR"
+cat > "$TEST_DIR/test.spec.js" <<'EOF'
+import { test, expect } from '@playwright/test';
 
-# Cleanup
-echo "Killing servers..."
-kill -9 $BACK_PID $FRONT_PID 2>/dev/null || echo "Failed to kill one or more servers"
 
-echo "Presubmission check completed."
+test('Basic functionality - notes visible and create note requires login', async ({ page }) => {
+  await page.goto('http://localhost:3000');
+  const createBtn = page.locator('button[name="add_new_note"]');
+  await expect(createBtn).toHaveCount(0);
+});
+
+
+EOF
+
+# Playwright config
+cat > playwright.config.js <<EOF
+import { defineConfig } from '@playwright/test';
+export default defineConfig({
+  testDir: './$TEST_DIR',
+  timeout: 6000,
+  use: {
+    headless: true,
+  },
+});
+EOF
+
+npx playwright test || {
+  echo "Test failed."
+  kill $BACK_PID $FRONT_PID
+  exit 1
+}
+cd ..
+
+kill $BACK_PID $FRONT_PID
+exit 0

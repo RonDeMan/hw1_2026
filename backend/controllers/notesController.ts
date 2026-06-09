@@ -1,5 +1,6 @@
 import { Request, Response } from 'express'
 import * as notesService from '../services/notesService'
+import { UserRequest } from '../middlewares/authMiddleware'
 
 export const getNotes = async (request: Request, response: Response) => {
   const queryParams = request.query
@@ -18,12 +19,22 @@ export const getNoteById = async (request: Request, response: Response) => {
 }
 
 export const deleteNoteById = async (request: Request, response: Response) => {
+  const userReq = request as UserRequest
+  if (!userReq.user) {
+    return response.status(401).json({ error: 'token missing or invalid' })
+  }
+
   const id = request.params.id.toString()
   await notesService.deleteNote(id)
   response.status(204).end()
 }
 
 export const createNote = async (request: Request, response: Response) => {
+  const userReq = request as UserRequest
+  if (!userReq.user) {
+    return response.status(401).json({ error: 'token missing or invalid' })
+  }
+
   const body = request.body
 
   if (!body.content) {
@@ -31,6 +42,9 @@ export const createNote = async (request: Request, response: Response) => {
       error: 'content missing',
     })
   }
+
+  body.author = { name: userReq.user.name, email: userReq.user.email }
+  body.user = userReq.user._id
 
   response.json(await notesService.addNote(body))
 }
@@ -45,6 +59,11 @@ export const getNoteByIndex = async (request: Request, response: Response) => {
 }
 
 export const updateNoteByIndex = async (request: Request, response: Response) => {
+  const userReq = request as UserRequest
+  if (!userReq.user) {
+    return response.status(401).json({ error: 'token missing or invalid' })
+  }
+
   const index = parseInt(String(request.params.i))
   const body = request.body
 
@@ -62,6 +81,11 @@ export const updateNoteByIndex = async (request: Request, response: Response) =>
 }
 
 export const deleteNoteByIndex = async (request: Request, response: Response) => {
+  const userReq = request as UserRequest
+  if (!userReq.user) {
+    return response.status(401).json({ error: 'token missing or invalid' })
+  }
+
   const index = parseInt(String(request.params.i))
   const deletedNote = await notesService.deleteithNote(index)
   if (!deletedNote) {
@@ -71,6 +95,11 @@ export const deleteNoteByIndex = async (request: Request, response: Response) =>
 }
 
 export const updateNoteById = async (request: Request, response: Response) => {
+  const userReq = request as UserRequest
+  if (!userReq.user) {
+    return response.status(401).json({ error: 'token missing or invalid' })
+  }
+
   const id = request.params.id.toString()
   const body = request.body
 
